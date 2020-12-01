@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd"
+       default-autowire="byName">
+    <!-- 配置数据库驱动DriverManagerDataSource对象-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/user"/>
+        <property name="username" value="root"/>
+        <property name="password" value="1594884214liyin"/>
+    </bean>
+    <!-- 配置事务DataSourceTransactionManager对象-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
+    <!-- 配置声明式事务-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <!-- 哪些方法需要有事务控制-->
+            <!-- 方法以 add* 表示的是控制方法为 add 的所有事务-->
+            <tx:method name="add*" propagation="REQUIRED" isolation="DEFAULT"/>
+            <tx:method name="remove*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <!-- 切点范围设置大一些-->
+        <aop:pointcut expression="execution(* com.xoste.leon.service.impl.*.*(..))" id="myPoint"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="myPoint"/>
+    </aop:config>
+</beans>
